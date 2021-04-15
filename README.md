@@ -62,6 +62,7 @@ Hal-hal yang perlu diperhatikan diantaranya :\
 <br>
 **Cara pengerjaan**
 ---
+
 Dalam membuat program Bahasa C yang berjalan di latar belakang/*background*, pertama-tama yang diperlukan adalah melakukan *import* library yang digunakan :
 ```c
 #include <sys/types.h>
@@ -403,21 +404,25 @@ _catatan : di akhir dari proses ini berjalan kami melakukan `sleep(10)` dan meny
 
 <br>
 **Screenshoot konfigurasi waktu guna menjalankan program ini**\
-![hasil](./img/soal1/ssSoal1-jam16-terminal-configtimetes.png)
+![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam16-terminal-configtimetes.png?token=AM7QR7JPCWPKJLJ6V2N2I3LAPBRCU)
 ---
+
 <br>
 **Screenshoot proses *run program* pada pukul 16:22:00**\
-![hasil](./img/soal1/ssSoal1-jam16-terminal-runjam16.png)
+![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam16-terminal-runjam16.png?token=AM7QR7IZH3IDXO544TFR7A3APBRDK)
 ---
+
 <br>
 **Screenshoot hasil jalannya program pada 9 April 2021 pukul 16:22:00**\
-![hasil](./img/soal1/ssSoal1-jam16-folder.png)
+![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam16-folder.png?token=AM7QR7P5YT4KDU7PLQZ4CK3APBRCC)
 ---
+
 <br>
 **Screenshoot proses *run program* pada pukul 22:22:00**\
-![hasil](./img/soal1/ssSoal1-jam22-terminal-runjam22.png)
+![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam22-terminal-runjam22.png?token=AM7QR7K5G2YMRWJY4SG4UETAPBREG)
 ---
+
 <br>
 **Screenshoot hasil jalannya program pada 9 April 2021 pukul 22:22:00**\
-![hasil](./img/soal1/ssSoal1-jam22-folder.png)
+![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam22-folder.png?token=AM7QR7LVXCCQO3TP3RJDSALAPBRD2)
 ---
