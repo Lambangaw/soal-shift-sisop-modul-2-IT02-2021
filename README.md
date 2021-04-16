@@ -52,7 +52,7 @@ Secara umum, kami menangkap bahwa program yang harus dibuat merupakan sebuah _da
 5. Point-point sebelum point ini berjalan secara otomisasi pada 6 jam sebelum ulang tahun dari Stevany, yang mana ulang tahun dari Stevany adalah 9 April pukul 22:22:00 WIB GMT+7. Sehingga dijalankan pada pukul 16:22:00 WIB GMT+7
 6. Pada saat waktu ulang tahun Stevany semua folder yang telah dibuat dan terisi di _zip_ dengan nama Lopyu_Stevany.zip dan selain folder dengan eksternsi `.zip` maka akan terhapus.
 
-Hal-hal yang perlu diperhatikan diantaranya :\
+Hal-hal yang perlu diperhatikan diantaranya :
 
 1. Seluruh soal 1 dijalankan di latar belakang (_daemon process_)
 2. Dilarang menggunakan fungsi `system()`, `mkdir()`, `rename()` yang tersedia pada Bahasa C, dan `cron`.
@@ -518,10 +518,22 @@ Source Code tersedia pada : [soal2.c](./soal2/soal2.c)
 
 ## Soal 3
 
-Source Code tersedia pada : [soal2.c](./soal2/soal2.c)
+Source Code tersedia pada : [soal3.c](./soal3/soal3.c)
 
 ## **Analisa Soal**
+Secara umum, kami menangkap bahwa program yang harus dibuat merupakan sebuah _daemon process_. Adapun secara spesifik soal tersebut terbagi menjadi beberapa bagian diantaranya :
 
+1. Membuat sebuah direktori setiap 40 detik dengan nama sesuai *timestamp* dengan format `[YYYY-mm-dd_HH:ii:ss]`.
+2. Dari setiap direktori yang telah dibuat akan diisi dengan 10 gambar yang diunduh dari `https://picsum.photos` yang mana setiap gambar akan diunduh selama 5d etik dan akan diberi nama `file` dengan format *timestamp* nya.
+3. Setelah selesai terunduh dengan 10 gambar dari direktori tersebut, maka akan dibuatkan sebuah `file` dengan nama `status.txt`. Isi dari `file` tersebut berisi pesan `Download Success` yang terenkripsi dengan teknik `Caesar Cipher` dengan `shift 5`. Lalu setelah file selesai dibuat maka direktori akan di-*compres* atau `zip` dan direktori akan di-*delete* dan hanya menyisakan `file` dengan ekstensi `.zip`.
+4. Buatkan sebuah pengendali program dengan nama `Killer` yang mana program ini akan meng-*generate* terminasi semua proses progam yang sedang berjalan dan akan menghapus dirinya sendiri setelah program dijalankan. Program ini merupakan `program bash`.
+5. Keseluruhan program dapat dijalankan dalam dua mode. Pertama dalam mode argumen `-z` yang mana program utama akan langsung menghentikan semua operasinya ketika program `Killer` dijalankan. Dan pada mode argumen `-x` program utama akan berhenti namun membiarkan proses di setiap direktori yang masih berjalan hingga selesai (Direktori yang telah dibuat akan mendownload gambar sampai selesai dan membuat file `.txt`, melakukan `.zip file` dan melakukan *delete* direktori).
+
+Hal-hal yang perlu diperhatikan diantaranya :
+
+1. Tidak diperkenankan menggunakan `system()`.
+2. Program utama merupakan `sebuah program C`.
+3. Wajib memuat algoritma `Caesar Cipher` pada program utama yang dibuat.
 
 
 <br>
