@@ -409,29 +409,178 @@ _catatan : di akhir dari proses ini berjalan kami melakukan `sleep(10)` dan meny
 Awalnya dari kelompok kami mengalami kesulitan dalam memahami program Daemon sendiri. Diawal kami melakukan kesalahan dengan melakuan sangat banyak forking diawal yang jika dijalankan pada daemon akibatnya membuat OS kami sangat lemot dan terpaksa harus di kill manual dari main OS.
 
 <br>
+
 **Screenshoot konfigurasi waktu guna menjalankan program ini**\
-![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam16-terminal-configtimetes.png?token=AM7QR7JPCWPKJLJ6V2N2I3LAPBRCU)
+![hasil](./img/soal1/ssSoal1-jam16-terminal-configtimetes.png)
 ---
 
 <br>
+
 **Screenshoot proses *run program* pada pukul 16:22:00**\
-![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam16-terminal-runjam16.png?token=AM7QR7IZH3IDXO544TFR7A3APBRDK)
+![hasil](./img/soal1/ssSoal1-jam16-terminal-runjam16.png)
 ---
 
 <br>
+
 **Screenshoot hasil jalannya program pada 9 April 2021 pukul 16:22:00**\
-![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam16-folder.png?token=AM7QR7P5YT4KDU7PLQZ4CK3APBRCC)
+![hasil](./img/soal1/ssSoal1-jam16-folder.png)
 ---
 
 <br>
+
 **Screenshoot proses *run program* pada pukul 22:22:00**\
-![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam22-terminal-runjam22.png?token=AM7QR7K5G2YMRWJY4SG4UETAPBREG)
+![hasil](./img/soal1/ssSoal1-jam22-terminal-runjam22.png)
 ---
 
 <br>
+
 **Screenshoot hasil jalannya program pada 9 April 2021 pukul 22:22:00**\
-![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam22-folder.png?token=AM7QR7LVXCCQO3TP3RJDSALAPBRD2)
+![hasil](./img/soal1/ssSoal1-jam22-folder.png)
+---
+
+<br>
+<br>
+
+## Soal 2
+
+Source Code tersedia pada : [soal2.c](./soal2/soal2.c)
+
+## **Analisa Soal**
+
+
+
+<br>
+
+**Cara pengerjaan**
 ---
 
 
 
+## Soal 2.a.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+<br>
+
+
+## Soal 2.b.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+
+
+<br>
+
+## Soal 2.c.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+
+
+<br>
+
+## Soal 2.d.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+
+<br>
+
+## Soal 2.e.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+<br>
+
+
+**Kendala**
+---
+
+<br>
+
+**Screenshoot**
+
+
+
+
+<br>
+<br>
+
+## Soal 3
+
+Source Code tersedia pada : [soal2.c](./soal2/soal2.c)
+
+## **Analisa Soal**
+
+
+
+<br>
+
+**Cara pengerjaan**
+---
+
+
+
+## Soal 3.a.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+<br>
+
+
+## Soal 3.b.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+
+
+<br>
+
+## Soal 3.c.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+
+
+<br>
+
+## Soal 3.d.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+
+<br>
+
+## Soal 3.e.
+## **Analisa Soal**
+
+**Cara Pengerjaan**
+---
+
+<br>
+
+
+**Kendala**
+---
+
+<br>
+
+**Screenshoot**
