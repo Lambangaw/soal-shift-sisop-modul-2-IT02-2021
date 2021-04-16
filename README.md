@@ -401,6 +401,12 @@ Secara konsep soal ini masih menggunakan fungsi `sleep()`, `wait()`, dan `execv`
 }
 ```
 _catatan : di akhir dari proses ini berjalan kami melakukan `sleep(10)` dan menyelesaikan dari proses `SID` pada `while big loop` dari `daemon process` dan selesai sudah semuanya._
+<br>
+
+**Kendala**
+---
+
+Awalnya dari kelompok kami mengalami kesulitan dalam memahami program Daemon sendiri. Diawal kami melakukan kesalahan dengan melakuan sangat banyak forking diawal yang jika dijalankan pada daemon akibatnya membuat OS kami sangat lemot dan terpaksa harus di kill manual dari main OS.
 
 <br>
 **Screenshoot konfigurasi waktu guna menjalankan program ini**\
@@ -426,3 +432,6 @@ _catatan : di akhir dari proses ini berjalan kami melakukan `sleep(10)` dan meny
 **Screenshoot hasil jalannya program pada 9 April 2021 pukul 22:22:00**\
 ![hasil](https://raw.githubusercontent.com/mhilmi999/soal-shift-sisop-modul-2-IT02-2021/main/img/soal1/ssSoal1-jam22-folder.png?token=AM7QR7LVXCCQO3TP3RJDSALAPBRD2)
 ---
+
+
+
