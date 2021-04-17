@@ -103,8 +103,6 @@ int main()
     }
 
     char foldering[index][128], owner[index][128], age[index][128], temp[128];
-    int k;
-    k = 0;
 
     for (int i = 0; i < index; i++)
     {
@@ -118,7 +116,7 @@ int main()
                 petname2 = strtok(NULL, ";");
                 sprintf(owner[i], "%s", petname2);
                 petname2 = strtok(NULL, ";");
-                ;
+                
                 strncpy(age[i], petname2, strlen(petname2) - 4);
 
                 petname2 = NULL;
@@ -151,7 +149,6 @@ int main()
     {
         char loc[128], path[128], txtpath[128];
         FILE *pFile;
-        char abs[128] = "/home/lambang/modul2/petshop/";
         sprintf(loc, "/home/lambang/modul2/petshop/%s", foldering[j]);
         DIR *dir = opendir(loc);
         if (dir)
