@@ -63,13 +63,13 @@ int main(int argc, char *argv[])
 
     fclose(pFile);
 
-    pid = fork();
-    if (pid == 0)
+    ortuid = fork();
+    if (ortuid == 0)
     {
         char *argv[] = {"chmod", "+x", "killer.sh", NULL};
         execv("/bin/chmod", argv);
     }
-    while (wait(NULL) != pid)
+    while (wait(NULL) != ortuid)
         ;
 
     close(STDIN_FILENO);
