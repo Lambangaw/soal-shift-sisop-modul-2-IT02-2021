@@ -610,7 +610,7 @@ Ketika kita sudah mendapatkan semua nama file maka variabel tersebut akan di spl
 ```
 _catatan = Dikarenakan pada soal ditujukan bahwa pada 1 file gambar bisa saja terdapat dua jenis hewan dan dipisahkan dengan `_`, jadi kami perlu melakukan pengecekan apakah pada nama file tersebut terdapat underscore atau tidak dengan fungsi `strstr()` jika iya maka akan membuatnya menjadi 2 variabel yang berisikan nama file untuk digunakan duplikasinya nanti_
 <br>
-Ketika semua nama file sudah disimpan masing masing pervariabel maka kita bisa memotong berdasarkan kategori, nama dan umur. Perlu diingat bahwa setiap kategori, nama dan umur dipisahkan oleh `;`. Kita perlu melakukan for loop sepanjang jumlah file yang terdapat pada directory. Dalam for loop kita akan memotong nama file dengan fungsi `strtok()
+Ketika semua nama file sudah disimpan masing masing pervariabel maka kita bisa memotong berdasarkan kategori, nama dan umur. Perlu diingat bahwa setiap kategori, nama dan umur dipisahkan oleh `;`. Kita perlu melakukan for loop sepanjang jumlah file yang terdapat pada directory. Dalam for loop kita akan memotong nama file dengan fungsi `strtok(temp, ";")` sehingga untuk potongan pertama akan menjadi nama folder dari file tersebut, potongan kedua menjadi nama file, potongan ketiga menjadi umur untuk `keterangan.txt`. 
 ```c
     char foldering[index][128], owner[index][128], age[index][128], temp[128];
     int k;
@@ -657,14 +657,102 @@ Ketika semua nama file sudah disimpan masing masing pervariabel maka kita bisa m
         }
     }
 ```
+_catatan = Dikarenakan pada soal ditujukan bahwa pada 1 file gambar bisa saja terdapat dua jenis hewan dan dipisahkan dengan `_`, jadi kami perlu melakukan pengecekan apakah pada nama file tersebut terdapat underscore atau tidak dengan fungsi `strstr()` jika iya maka akan disimpan dalam 6 variabel dengan 3 variabel pertama untuk keterangan hewan pertama, dan 3 variabel selanjutnya untuk keterangan hewan kedua_
 <br>
+Selanjutnya kita akan melakukan for loop sejumlah banyaknya keterangan hewan yang terdapat dalam folder. Program akan mencoba membuka folder dengan nama jenis hewan, jika folder tersebut tidak bisa dibuka maka akan membuat folder baru dengan nama jenis hewan dengan bantuan fungsi `fork`,  `execve`, dan bantuan command `mkdir`.
+```c
+for (int j = 0; j < index; j++)
+    {
+        char loc[128], path[128], txtpath[128];
+        FILE *pFile;
+        sprintf(loc, "/home/lambang/modul2/petshop/%s", foldering[j]);
+        DIR *dir = opendir(loc);
+        if (dir)
+        {
+            closedir(dir);
+        }
+        else if (ENOENT == errno)
+        {
+            child_id = fork();
+            if (child_id == 0)
+            {
+                char *argv[] = {"mkdir", loc, NULL};
+                execv("/bin/mkdir", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+        }
+        ...
+    }
+```
+<br>
+
 
 ## Soal 2.c.
 ## **Analisa Soal**
-
+Pada soal ini kita diminta untuk membuat file jpg pada tiap folder yang sudah dibuat pada poin sebelumnya. Nama file jpg merupakan nama dari hewan peliharaan yang sudah disimpan pada variabel `owner[]` pada poin sbb
 **Cara Pengerjaan**
 ---
 
+```c
+for (int j = 0; j < index; j++)
+    {
+        char loc[128], path[128], txtpath[128];
+        
+        ...
+
+        if (strstr(name[j], "_") == NULL)
+        {
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", loc, owner[j]);
+                char *argv[] = {"mv", name[j], path, NULL};
+                execv("/bin/mv", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+        }
+        else
+        {
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", loc, owner[j]);
+                char *argv[] = {"cp", name[j], path, NULL};
+                execv("/bin/cp", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+            sprintf(txtpath, "%s/keterangan.txt", foldering[j]);
+            pFile = fopen(txtpath, "a+");
+            char *txt = ""
+                        "nama: %s\n"
+                        "umur: %s\n\n";
+            fprintf(pFile, txt, owner[j], age[j]);
+            fclose(pFile);
+            j = j + 1;
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", foldering[j], owner[j]);
+                char *argv[] = {"mv", name[j], path, NULL};
+                execv("/bin/mv", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+        }
+
+        sprintf(txtpath, "%s/keterangan.txt", foldering[j]);
+        pFile = fopen(txtpath, "a+");
+        char *txt = ""
+                    "nama: %s\n"
+                    "umur: %s\n\n";
+        fprintf(pFile, txt, owner[j], age[j]);
+        fclose(pFile);
+    }
+
+```
 
 
 <br>
