@@ -570,51 +570,301 @@ Dalam menyelesaikan program yang diminta oleh [soal3](#soal-3), pertama-tama yan
 
 <br>
 
+Selanjutnya, pada awal  `main function` program ini membutuhkan 2 parameter argumen utama yaitu `int argc` dan `char *argv` yang bertujuan sebagai *argument counter*.
 
+```c
+int main(int argc, char *argv[])
+{
+    ...
+}
+```
+_catatan : *argument counter* memudahkan program dalam melakukan pemilahan eksekusi apakah mode 1 atau mode 2 dari yang diminta soal_
+
+Kemudian kami harus mengubah program ini ke dalam bentuk *daemon process*
+```c
+ pid_t ortuid, anakid;
+
+    ortuid = fork();
+
+    if (ortuid < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    if (ortuid > 0)
+    {
+        exit(EXIT_SUCCESS);
+    }
+```
+_catatan : Disini kami melakukan fork() yang bertujuan agar menghasilkan parent process dengan variable ortuid yang berisi PID dari child processnya. Child process dengan variable ortuid berisi value 0. Kemudian, parent process akan di keluarkan dengan fungsi exit() dengan statusnya_
+
+Selanjutnya mengubah mode file
+```c
+ umask(0);
+ ```
+ _catatan : hal ini dilakukan dengan tujuan kita mendapatkan *full access* terhadap file yang telah dibuat oleh daemon._
+
+
+Setelah itu, membuat *Unique Session ID* `(SID)`
+```c
+anakid = setsid();
+    if (anakid < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
+```
+_catatan : Tanpa adanya `SID`, *child process* yang *parent* nya telah di-`kill` akan menjadi *Orphan Process*._
+
+Lalu kami harus menentukan *working directory* target dari jalannya proses ini dengan bantuan fungsi `chdir()`
+```c
+ if ((chdir("/home/mikehotel/modul_2/soalShift2/")) < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
+```
+_catatan : dengan mengubah ke alamat *directory* tersebut, maka segala hasil proses dari program ini akan tersedia disana._
+
+Lalu, disini kita perlu membuat `file` dengan `program bash` yang bernama `killer.sh` yang bertujuan untuk menterminasi semua proses program yang sedang berjalan dan menghapus dirinya sendiri setelah program dijalankan.
+```c
+ FILE *pFile;
+    pFile = fopen("killer.sh", "w");
+
+    if (strcmp(argv[1], "-x") == 0)
+    {
+        char inp[30] = {"pkill -9 -s "};
+        char gpid[30];
+        sprintf(gpid, " %d", getpid());
+        strcat(inp, gpid);
+        fprintf(pFile, inp);
+    }
+
+    if (strcmp(argv[1], "-z") == 0)
+    {
+        char inp[30] = {"kill -9 "};
+        char gpid[30];
+        sprintf(gpid, " %d", getpid());
+        strcat(inp, gpid);
+        fprintf(pFile, inp);
+    }
+    fclose(pFile);
+```
+_catatan : Jika inputan argument counter berupa -z, maka program `killer.sh` akan menghentikan semua operasi dari program utama. Akan tetapi jika inputan argument counter berupa -x, maka program `killer.sh` akan membuat program utama berhenti namun membiarkan proses di setiap direktori yang masih berjalan hignga selesai. Perbedaan mendasar antar argument counter tersebut terdapat pada command `pkill -9 -s` dan `kill -9` agar dapat menyesuaikan dengan yang dimau dari masing-masing mode dari program bash `killer.sh`._
+
+Tak lupa kami menutup *File Descriptor* Standar 
+```c
+ close(STDIN_FILENO);
+ close(STDOUT_FILENO);
+ close(STDERR_FILENO);
+```
+_catatan : Inti dari ketiga `file descriptor` ini adalah tidak memunculkan pesan pada *user* contohnya pada terminal._
+<br>
 
 ## Soal 3.a.
 ## **Analisa Soal**
+Pada soal a, kami diminta untuk membuat sebuah direktori dengan menggunakan `fork()` dan `execv()`. Direktori yang dibuat akan terotomisasi dalam kurun 40 detik akan membuat direktori baru lagi dengan format nama direktori `[YYYY-mm-dd_HH:ii:ss]`.
 
 **Cara Pengerjaan**
 ---
+Dalam menjawab soal 3.a. kami mendefinisikan untuk waktu *localtime* (WIB GMT+7) yang diambil dari *Epoch time in unix* yang mana selanjutnya dikonversi ke dalam *human readable* dengan menyesuaikan format `[YYY-mm-dd_HH:ii:ss]`. Selanjutnya guna melaksanakan proses pembuatan direktori kami membuat *child process* dengan variable `cucuid` untuk melakukan pembuatan dari `directory` yang diminta. 
+```c
+  time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        char now[80];
+        strftime(now, 80, "%Y-%m-%d_%H:%M:%S", tm);
+
+        pid_t cucuid;
+        cucuid = fork();
+
+        if (cucuid == 0)
+        {
+            char *argv[] = {"mkdir", now, NULL};
+            execv("/bin/mkdir", argv);
+        }
+```
+_catatan : Pembuatan direktori dieksekusi oleh bantuan fungsi dari `fork()` dalam pelaksanaan prosesnya dan fungsi `execv()` dalam pembuatannya._
 
 <br>
 
-
 ## Soal 3.b.
 ## **Analisa Soal**
+Soal selanjutnya yaitu soal b, dari direktori yang telah dibuat pada soal a maka direktori tersebut diisi dengan 10 gambar yang diunduh dari `https://picsum.photos/`. Yang mana durasi dari setiap gambar yang diunduh selama 5 detik dan setiap gambar yang terunduh akan diberi nama dengan format *timestamp* `[YYYY-mm-dd_HH:ii:ss]`. Gambar ini berbentuk persegi dengan ukuran `(n%1000) + 50 pixel` dimana n adalah detik *Epoch Unix*.
 
 **Cara Pengerjaan**
 ---
+Untuk menjawab soal 3.b. kami melakukan `fork()` dengan variable `cucuid` agar dapat berjalan dari proses pengunduhan 10 gambar dari tautan terkait. Selanjutnya dilakukan perulangan dengan perulangan `for loop` untuk melakukan pengunduhan gambar sebanyak 10 buah. Lalu pendefinisian dari nama file sesuai dengan *timestamp* yang diminta serta pendefinisian gambar yang ingin diunduh dari tautan tersebut dengan ketentuan `(detik dari *Epoch in Unix* % 1000) + 50 pixel` dan dilakukan pengunduhan.
+```c
+        cucuid = fork();
+        if (cucuid == 0)
+        {
 
+            for (int i = 0; i < 10; i++)
+            {
 
+                cucuid = fork();
+                if (cucuid == 0)
+                {
+
+                    t = time(NULL);
+                    tm = localtime(&t);
+
+                    char new_now[80], location[160], link[80];
+                    strftime(new_now, 80, "%Y-%m-%d_%H:%M:%S", tm);
+                    sprintf(location, "%s/%s", now, new_now);
+                    sprintf(link, "https://picsum.photos/%ld", (((int)tm->tm_sec % 1000) + 50));
+                    char *argv[] = {"wget", "-O", location, link, "-o", "log", NULL};
+                    execv("/usr/bin/wget", argv);
+                }
+
+                sleep(5);
+```
+_catatan : Dalam melakukan unduhan kami menggunakan bantuan dari fungsi `execv()` dan command `wget` dari tautan terkait._
 
 <br>
 
 ## Soal 3.c.
 ## **Analisa Soal**
+Pada soal c, setelah melakukan pengunduhan dan terisi 10 gambar dari link `https://picsum.photos/` menuju ke direktori terkait program akan membuat sebuah file `status.txt` yang berisi pesan `Download Success` yang juga ter-enkripsi dengan teknik `Caesar Cipher` menggunakan shift 5. Setelah melakukan pembuatan file `status.txt`, maka direktori tadi dilakukan peng-*compress* an atau `zip file` dan direktori akan dihapus sehingga menyisakan hanya `file zip` saja.
 
 **Cara Pengerjaan**
 ---
+Yang kami lakukan pertama kali adalah melakukan pengecekan apakah pengunduhan telah terunduh sebanyak 10 buah gambar, jika sudah maka kami memproses pembuatan `file` dari `status.txt` yang berisikan pesan `Download Success`. Yang mana pesan `Download Success` di-enkripsi dengan metode `Caesar Cipher` yang direpresentasikan dengan perulangan `for loop`. Perulangan ini akan mengecek dari tiap-tiap index karakter array dan menggesernya atau `shift` sebanyak 5. Apabila perulangan telah dilakukan maka pembuatan `file status.txt` dilakukan dengan bantuan dari fungsi `fopen()`. Kemudian kami melakukan `fork()` kebali terhadap variable `cucuid` yang akan menjalankan proses peng-*compress* an dari direktori yang telah siap dengan bantuan fungsi `execv` dan *command* `zip -r`. Setelah semua itu maka kami melakukan proses selanjutnya untuk menghapus semuanya terkecuali terhadap `file` dengan ekstensi `.zip`.
+```c
+            if (i == 9)
+                {
 
+                    char plain[100] = {"Download Success"};
+                    char ch;
+                    int J;
+                    int key = 5;
+
+                    for (J = 0; plain[J] != '\0'; ++J)
+                    {
+                        ch = plain[J];
+
+                        if (ch >= 'a' && ch <= 'z')
+                        {
+                            ch = ch + key;
+
+                            if (ch > 'z')
+                            {
+                                ch = ch - 'z' + 'a' - 1;
+                            }
+
+                            plain[J] = ch;
+                        }
+                        else if (ch >= 'A' && ch <= 'Z')
+                        {
+                            ch = ch + key;
+
+                            if (ch > 'Z')
+                            {
+                                ch = ch - 'Z' + 'A' - 1;
+                            }
+
+                            plain[J] = ch;
+                        }
+                    }
+
+                    FILE *pFile;
+                    char path[100];
+                    strcpy(path, now);
+                    strcat(path, "/success.txt");
+                    pFile = fopen(path, "a+");
+                    fprintf(pFile, plain);
+                    fclose(pFile);
+                }
+            }
+
+            while (wait(NULL) > 0)
+                ;
+            cucuid = fork();
+            if (cucuid == 0)
+            {
+
+                char nama_file[80];
+                sprintf(nama_file, "%s.zip", now);
+                char *argv[] = {"zip", "-r", nama_file, now, NULL};
+                execv("/usr/bin/zip", argv);
+            }
+
+            while (wait(NULL) != cucuid)
+                ;
+            char *argv[] = {"rm", "-r", now, NULL};
+            execv("/bin/rm", argv);
+        }
+
+        sleep(40);
+    }
+}
+```
+_catatan : Disini kami pergunakan `while(wait(NULL))` bertujuan untuk melakukan reusable dari variable cucuid dalam melakukan proses dengan bantuan fungsi `fork()`._
 
 
 <br>
 
 ## Soal 3.d.
 ## **Analisa Soal**
+Pada soal d, kami diminta untuk membuat sebuah `program bash` dengan nama `killer` yang berfungsi untuk menterminasi semua proses yang sedang berjalan dan akan menghapus dirinya sendiri setelah progrma dijalankan.
 
 **Cara Pengerjaan**
 ---
+Secara esensi sebenarnya kami telah melakukan proses ini di awal dari [Cara pengerjaan Soal 3](#Soal-3).
+Kita perlu membuat `file` dengan `program bash` yang bernama `killer.sh` yang bertujuan untuk menterminasi semua proses program yang sedang berjalan dan menghapus dirinya sendiri setelah program dijalankan. Dalam pembuatan program ini kami menggunakan bantuan dari fungsi `fopen()`.
+```c
+ FILE *pFile;
+    pFile = fopen("killer.sh", "w");
 
+    if (strcmp(argv[1], "-x") == 0)
+    {
+        char inp[30] = {"pkill -9 -s "};
+        char gpid[30];
+        sprintf(gpid, " %d", getpid());
+        strcat(inp, gpid);
+        fprintf(pFile, inp);
+    }
+
+    if (strcmp(argv[1], "-z") == 0)
+    {
+        char inp[30] = {"kill -9 "};
+        char gpid[30];
+        sprintf(gpid, " %d", getpid());
+        strcat(inp, gpid);
+        fprintf(pFile, inp);
+    }
+    fclose(pFile);
+```
+_catatan : Jika inputan argument counter berupa -z, maka program `killer.sh` akan menghentikan semua operasi dari program utama. Akan tetapi jika inputan argument counter berupa -x, maka program `killer.sh` akan membuat program utama berhenti namun membiarkan proses di setiap direktori yang masih berjalan hignga selesai. Perbedaan mendasar antar argument counter tersebut terdapat pada command `pkill -9 -s` dan `kill -9` agar dapat menyesuaikan dengan yang dimau dari masing-masing mode dari program bash `killer.sh`._
 
 <br>
 
 ## Soal 3.e.
 ## **Analisa Soal**
+Pada soal e ini diminta untuk menjadikan program utama memiliki `dua mode` pilihan ketika dijalankan. Dalam mode `-z` maka program utama langsung menghentikan semua operasinya ketika program `killer` dijalankan. Selanjutnya pada mode kedua yaitu mode `-x` maka program utama akan berhenti namun membiarkan proses di setiap direktori yang masih berjalan hingga selesai(Direktori yang sudah dibuat akan mendownload gambar sampai selesai dan membuat `file txt`, lalu `zip`, dan hapus direktori)
 
 **Cara Pengerjaan**
 ---
+Mode akan ditangkap dari `argument counter` dari parameter fungsi/program utama yang mana nanti akan menjadikannya bercabang dalam kedua mode yang dimaksud.
+```c
+    if (strcmp(argv[1], "-x") == 0)
+    {
+        char inp[30] = {"pkill -9 -s "};
+        char gpid[30];
+        sprintf(gpid, " %d", getpid());
+        strcat(inp, gpid);
+        fprintf(pFile, inp);
+    }
+
+    if (strcmp(argv[1], "-z") == 0)
+    {
+        char inp[30] = {"kill -9 "};
+        char gpid[30];
+        sprintf(gpid, " %d", getpid());
+        strcat(inp, gpid);
+        fprintf(pFile, inp);
+    }
+
+```
+_catatan : Perbedaan mendasar antar mode yaitu pada `-z` dan `-x` ialah pada perintah command nya. Jika pada mode `-z` maka command yang dieksekusi adalah `kill -9` dan jika pada mode `-x` maka command yang dieksekusi adalah `pkill -9 -s`._
 
 <br>
 
@@ -624,4 +874,6 @@ Dalam menyelesaikan program yang diminta oleh [soal3](#soal-3), pertama-tama yan
 
 <br>
 
-**Screenshoot**
+**Screenshoot hasil jalannya dari program [soal3](./soal3/soal3.c)**
+![hasil](./img/soal3/ssSoal3-hasilrun.png)
+---
