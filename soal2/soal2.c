@@ -103,8 +103,6 @@ int main()
     }
 
     char foldering[index][128], owner[index][128], age[index][128], temp[128];
-    int k;
-    k = 0;
 
     for (int i = 0; i < index; i++)
     {
