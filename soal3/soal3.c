@@ -1,10 +1,6 @@
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <wait.h>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <wait.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -12,6 +8,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include <time.h>
 
 int main(int argc, char *argv[])
 {
@@ -49,9 +46,9 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-x") == 0)
     {
         char inp[30] = {"pkill -9 -s "};
-        char anakid[30];
-        sprintf(anakid, " %d", anakid);
-        strcat(inp, anakid);
+        char gpid[30];
+        sprintf(gpid, " %d", getpid());
+        strcat(inp, gpid);
         fprintf(pFile, inp);
     }
 
@@ -177,4 +174,3 @@ int main(int argc, char *argv[])
         sleep(40);
     }
 }
-

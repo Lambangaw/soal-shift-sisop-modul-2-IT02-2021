@@ -60,6 +60,7 @@ Hal-hal yang perlu diperhatikan diantaranya :
 4. Pergunakan link, video, dan tips lainnya yang ada pada soal.
 
 <br>
+
 **Cara pengerjaan**
 ---
 
@@ -540,6 +541,34 @@ Hal-hal yang perlu diperhatikan diantaranya :
 
 **Cara pengerjaan**
 ---
+
+Dalam menyelesaikan program yang diminta oleh [soal3](#soal-3), pertama-tama yang diperlukan adalah melakukan *import* library yang digunakan :
+```c
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <wait.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <string.h>
+#include <time.h>
+```
+- `<sys/types.h>` library tipe data khusus (e.g. `pid_t`)
+- `<sys/stat.h>` Library untuk melakukan pengembalian dari status waktu (e.g. `time_t()`)
+- `<wait.h>` Library untuk melakukan _wait_ (e.g. `wait()`)
+- `<stdio.h>` library untuk fungsi input-output (e.g. `printf(), sprintf()`)
+- `<stdlib.h>` library untuk fungsi umum (e.g. `exit(), atoi()`)
+- `<fcntl.h>` library untuk proses id dalam proses kunci (e.g. `pid_t()`)
+- `<errno.h>` library untuk memberikan tambahan error pada sistem yang sesuai dengan IEEE Std 1003.1-2001  (e.g. `ECHILD`)
+- `<unistd.h>` library untuk melakukan system call kepada kernel linux (e.g. `fork()`)
+- `<syslog.h>` library untuk mengirimkan pesan ke *system logger* (e.g. `openlog()`)
+- `<string.h>` library untuk melakukan manipulasi *arrays of character* (e.g. `*memset()`)
+- `<time.h>` library untuk melakukan manipulasi date dan time (e.g. `time(), strftime()`)
+
+<br>
 
 
 
