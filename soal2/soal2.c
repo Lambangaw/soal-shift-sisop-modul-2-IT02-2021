@@ -47,6 +47,16 @@ int main()
     while (wait(NULL) != child_id)
         ;
 
+    child_id = fork();
+    if (child_id == 0)
+    {
+        sleep(20);
+        char *argv[] = {"rm", "-r", "musics", "apex_cheats", "unimportant_files", NULL};
+        execv("/bin/rm", argv);
+    }
+    while (wait(NULL) != child_id)
+        ;
+
     DIR *petdir;
     struct dirent *helperdir;
     char pet[1024];
@@ -65,50 +75,30 @@ int main()
         }
         (void)closedir(petdir);
     }
-    else
-        perror("Couldn't open the directory");
 
     char *petname = strtok(pet, "\n");
     char **name = malloc(60 * sizeof(char *));
     char **nametmp = malloc(60 * sizeof(char *));
-
     int index = 0;
 
     while (petname != NULL)
     {
-        struct stat location_stat;
-        char location[256];
-        sprintf(location, "/home/lambang/modul2/petshop/%s", petname);
-        stat(location, &location_stat);
-        if (S_ISDIR(location_stat.st_mode))
+        if (strstr(petname, "_") != NULL)
         {
-            child_id = fork();
-            if (child_id == 0)
-            {
-                char *argv[] = {"rm", "-r", petname, NULL};
-                execv("/bin/rm", argv);
-            }
-            while (wait(NULL) != child_id)
-                ;
+            name[index] = petname;
+            nametmp[index] = petname;
+            index++;
+            name[index] = petname;
+            nametmp[index] = petname;
+            index++;
         }
         else
         {
-            if (strstr(petname, "_") != NULL)
-            {
-                name[index] = petname;
-                nametmp[index] = petname;
-                index++;
-                name[index] = petname;
-                nametmp[index] = petname;
-                index++;
-            }
-            else
-            {
-                name[index] = petname;
-                nametmp[index] = petname;
-                index++;
-            }
+            name[index] = petname;
+            nametmp[index] = petname;
+            index++;
         }
+
         petname = strtok(NULL, "\n");
     }
 
@@ -213,7 +203,7 @@ int main()
             child_id = fork();
             if (child_id == 0)
             {
-                sprintf(path, "%s/%s.jpg", loc, owner[j]);
+                sprintf(path, "%s/%s.jpg", foldering[j], owner[j]);
                 char *argv[] = {"mv", name[j], path, NULL};
                 execv("/bin/mv", argv);
             }

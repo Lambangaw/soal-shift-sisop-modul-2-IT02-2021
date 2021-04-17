@@ -448,32 +448,215 @@ Source Code tersedia pada : [soal2.c](./soal2/soal2.c)
 
 ## **Analisa Soal**
 
+Dari kami merasa soal ini lebih utamanya dalam file dan string handling pada bahasa pemrograman C yang selanjutnya akan melakukan penataan file. Adapun secara spesifik soal tersebut terbagi menjadi beberapa bagian diantaranya :
+
+1. Soal meminta berada pada directory `~/modul2/petshop/`. Ketika diberikan sebuah file zip yang ternyata didalamnya masih terdapat folder folder trash dan kita diminta untuk menghapus folder yang tidak digunakan
+2. Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus membuat folder untuk setiap jenis peliharaan yang ada dalam zip. Karena kamu tidak mungkin memeriksa satu-persatu, maka program harus membuatkan folder-folder yang dibutuhkan sesuai dengan isi zip. misalnya pada file `cat;joni;6.jpg` maka akan ditaruh pada folder `petshop/cat`
+3. Setelah semua gambar sudah berada sesuai folder maka harus di rename sesuai dengan nama dari hewan peliharaan, semisal `cat;joni;6.jpg` maka rename menjadi `joni.jpg`.
+4. Dalam sebuah gambar bisa saja terdapat 2 jenis hewan semisal pada file dengan nama `cat;joni;6_dog;anto;3.jpg` maka file tersebut harus di copy pada 2 folder sekaligus yaitu pada folder `petshop/cat/joni.jpg` dan `petshop/dog/anto.jpg`.
+5. Ketika semua file sudah dimasukan sesuai dengan folder akan dibuat sebuah file `keterangan.txt` yang akan berisi nama dan umur dari setiap hewan peliharaan yang terdapat pada folder tersebut.
+
 
 
 <br>
 
 **Cara pengerjaan**
 ---
+Dalam menyelesaikan program yang diminta oleh [soal2](#soal-2), pertama-tama yang diperlukan adalah melakukan *import* library yang digunakan :
+```c
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <wait.h>
+#include <dirent.h>
+#include <errno.h>
+```
+- `<sys/types.h>` library tipe data khusus (e.g. `pid_t`)
+- `<sys/stat.h>` Library untuk melakukan pengembalian dari status waktu (e.g. `time_t()`)
+- `<wait.h>` Library untuk melakukan _wait_ (e.g. `wait()`)
+- `<stdio.h>` library untuk fungsi input-output (e.g. `printf(), sprintf()`)
+- `<stdlib.h>` library untuk fungsi umum (e.g. `exit(), atoi()`)
+- `<errno.h>` library untuk memberikan tambahan error pada sistem yang sesuai dengan IEEE Std 1003.1-2001  (e.g. `ECHILD`)
+- `<unistd.h>` library untuk melakukan system call kepada kernel linux (e.g. `fork()`)
+- `<string.h>` library untuk melakukan manipulasi *arrays of character* (e.g. `*memset()`)
+- `<dirent.h>` library untuk melakukan pemindahan directory.
+<br>
 
+pada awal program kita akan melakukan chdir sesuai directory yang diminta. Mendownload file zip yang terdapat pada public github sisop, dan mengunzipnya. Untuk mendownload kita menggunakan bantuan dari `wget` dan `fork()`, untuk unzip menggunakan command `unzip` dan bantuan `fork` juga. Selanjutnya kita wajib menghapus pets.zip terlebih dahulu sebelum melanjutkan ke proses selanjutnya.
+```c
+pid_t child_id;
+    if ((chdir("/home/lambang/modul2/petshop/")) < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
 
+    child_id = fork();
+    if (child_id == 0)
+    {
+        char *argv[] = {"wget", "--no-check-certificate", "https://drive.google.com/uc?id=1g5rehatLEkqvuuK_eooHJXB57EfdnxVD&export=download", "-O", "pets.zip", NULL};
+        execv("/bin/wget", argv);
+    }
+    while (wait(NULL) != child_id)
+        ;
+
+    child_id = fork();
+    if (child_id == 0)
+    {
+        sleep(10);
+        char *argv[] = {"unzip", "pets.zip", NULL};
+        execv("/bin/unzip", argv);
+    }
+    while (wait(NULL) != child_id)
+        ;
+
+    child_id = fork();
+    if (child_id == 0)
+    {
+        sleep(20);
+        char *argv[] = {"rm", "pets.zip", NULL};
+        execv("/bin/rm", argv);
+    }
+    while (wait(NULL) != child_id)
+        ;
+
+    
+```
 
 ## Soal 2.a.
 ## **Analisa Soal**
+Soal meminta untuk membersihkan folder folder yang tidak digunakan pada program, karena dalam pets.zip terdapat folder `apex_cheats` , `musics`, dan `unimportant_files`. Kita akan menghapusnya dengan bantuak `fork` dan command `rm -r`.
+
+
+
 
 **Cara Pengerjaan**
 ---
-
+Dengan menggunakan bantuan `fork()` kita hanya memanggil command `rm -r` dan dilanjutkan ketiga folder yang hendak dihapus, dan dieksekusi dengan `execv()`
+```c
+child_id = fork();
+    if (child_id == 0)
+    {
+        sleep(20);
+        char *argv[] = {"rm", "-r", "musics", "apex_cheats", "unimportant_files", NULL};
+        execv("/bin/rm", argv);
+    }
+    while (wait(NULL) != child_id)
+        ;
+```
 <br>
 
 
 ## Soal 2.b.
 ## **Analisa Soal**
+Pada poin ini diminta untuk membuat folder sesuai dengan jenis hewan yang terdapat pada file zip. Jenis hewan ini merupakan string pertama sebelum `;` pada nama file.
 
 **Cara Pengerjaan**
 ---
+Kita perlu mengambil semua nama file yang ada pada directory tersebut dan menyimpannya pada variabel. Dengan bantuan dari variabel tipe data `DIR *` yang  akan menyimpan path ke lokasi yang diinginkan soal. Fungsi `readdir` akan mendapatkan semua file atau folder yang terdapat pada `petdir` kita menyimpannya pada variabel `helperdir`. Kita ketahui bersama pada setiap directory selalu ada direcotry `.` dan `..`, `readdir` juga membaca directory ini dan kita menggunakan if statement untuk menanggulangi error jika `readdir` membaca directory tersebut. Dalam helperdir kita mendapatkan nama dari setiap file adalah dengan mengambil `d_name` nya. Kita akan menyimpan semua nama file pada variabel `pet` dengan bantuan `sprintf` dan setiap nama file akan dipisahkan dengan `enter` . 
 
+```c
+    DIR *petdir;
+    struct dirent *helperdir;
+    char pet[1024];
+    memset(pet, 0, sizeof pet);
+    petdir = opendir("/home/lambang/modul2/petshop/");
 
+    if (petdir != NULL)
+    {
+        while ((helperdir = readdir(petdir)))
+        {
+            if (strcmp(helperdir->d_name, ".") == 0 || strcmp(helperdir->d_name, "..") == 0)
+            {
+                continue;
+            }
+            sprintf(pet + strlen(pet), "%s\n", helperdir->d_name);
+        }
+        (void)closedir(petdir);
+    }
+```
+Ketika kita sudah mendapatkan semua nama file maka variabel tersebut akan di split dengan fungsi `strtok()` dengan delimiter `\n`. Kita menyiapkan variabel name dan nametemp dengan tipe data `char **` karena kita akan perlu melakukan indexing dan penyimpanan variabel string. Variabel `petname` diinisiasi dengan fungsi `strtok(pet, "\n")` dimana pada posisi ini `petname` berisi nama file pertama. Selanjutnya dijalankan `while loop` dimana while loop ini akan mengambil semua nama file dan menyimpanya pada variabel name dan nametmp sesuai dengan index masing masing, jika semua file sudah disimpan pada variabel masing masing maka akan keluar dari while loop.
 
+```c
+    char *petname = strtok(pet, "\n");
+    char **name = malloc(60 * sizeof(char *));
+    char **nametmp = malloc(60 * sizeof(char *));
+    int index = 0;
+
+    while (petname != NULL)
+    {
+        char location[256];
+        sprintf(location, "/home/lambang/modul2/petshop/%s", petname);
+        if (strstr(petname, "_") != NULL)
+        {
+            name[index] = petname;
+            nametmp[index] = petname;
+            index++;
+            name[index] = petname;
+            nametmp[index] = petname;
+            index++;
+        }
+        else
+        {
+            name[index] = petname;
+            nametmp[index] = petname;
+            index++;
+        }
+
+        petname = strtok(NULL, "\n");
+    }
+```
+_catatan = Dikarenakan pada soal ditujukan bahwa pada 1 file gambar bisa saja terdapat dua jenis hewan dan dipisahkan dengan `_`, jadi kami perlu melakukan pengecekan apakah pada nama file tersebut terdapat underscore atau tidak dengan fungsi `strstr()` jika iya maka akan membuatnya menjadi 2 variabel yang berisikan nama file untuk digunakan duplikasinya nanti_
+<br>
+Ketika semua nama file sudah disimpan masing masing pervariabel maka kita bisa memotong berdasarkan kategori, nama dan umur. Perlu diingat bahwa setiap kategori, nama dan umur dipisahkan oleh `;`. Kita perlu melakukan for loop sepanjang jumlah file yang terdapat pada directory. Dalam for loop kita akan memotong nama file dengan fungsi `strtok()
+```c
+    char foldering[index][128], owner[index][128], age[index][128], temp[128];
+    int k;
+    k = 0;
+
+    for (int i = 0; i < index; i++)
+    {
+        if (strstr(name[i], "_") == NULL)
+        {
+            sprintf(temp, "%s", nametmp[i]);
+            char *petname2 = strtok(temp, ";");
+            while (petname2 != NULL)
+            {
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                
+                strncpy(age[i], petname2, strlen(petname2) - 4);
+
+                petname2 = NULL;
+            }
+        }
+        else
+        {
+            sprintf(temp, "%s", nametmp[i]);
+            char *petname2 = strtok(temp, ";");
+            while (petname2 != NULL)
+            {
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, "_");
+                sprintf(age[i], petname2);
+                i = i + 1;
+                petname2 = strtok(NULL, ";");
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                strncpy(age[i], petname2, strlen(petname2) - 4);
+                petname2 = NULL;
+            }
+        }
+    }
+```
 <br>
 
 ## Soal 2.c.
@@ -570,7 +753,7 @@ Dalam menyelesaikan program yang diminta oleh [soal3](#soal-3), pertama-tama yan
 
 <br>
 
-Selanjutnya, pada awal  `main function` program ini membutuhkan 2 parameter argumen utama yaitu `int argc` dan `char *argv` yang bertujuan sebagai *argument counter*.
+Selanjutnya, pada awal  `main function` program ini membutuhkan 2 parameter argumen utama yaitu `int argc` dan `char *argv` yang bertujuan sebagai variabel yang akan menerima argumen dalam penjalanan program, dimana *argv[] sebagai penyimpan arguman dan argc sebagai counter berapa banyak argumen yang diterima.
 
 ```c
 int main(int argc, char *argv[])
@@ -647,8 +830,15 @@ Lalu, disini kita perlu membuat `file` dengan `program bash` yang bernama `kille
         fprintf(pFile, inp);
     }
     fclose(pFile);
+
+    pid = fork();
+    if (pid == 0) {
+      char *argv[] = {"chmod", "+x", "killer.sh" , NULL};
+      execv("/bin/chmod", argv);
+    }
+  while(wait(NULL) != pid);
 ```
-_catatan : Jika inputan argument counter berupa -z, maka program `killer.sh` akan menghentikan semua operasi dari program utama. Akan tetapi jika inputan argument counter berupa -x, maka program `killer.sh` akan membuat program utama berhenti namun membiarkan proses di setiap direktori yang masih berjalan hignga selesai. Perbedaan mendasar antar argument counter tersebut terdapat pada command `pkill -9 -s` dan `kill -9` agar dapat menyesuaikan dengan yang dimau dari masing-masing mode dari program bash `killer.sh`._
+_catatan : Jika inputan argument counter berupa -z, maka program `killer.sh` akan menghentikan semua operasi dari program utama. Akan tetapi jika inputan argument counter berupa -x, maka program `killer.sh` akan membuat program utama berhenti namun membiarkan proses di setiap direktori yang masih berjalan hingga selesai. Perbedaan mendasar antar argument counter tersebut terdapat pada command `pkill -9 -s` dan `kill -9` agar dapat menyesuaikan dengan yang dimau dari masing-masing mode dari program bash `killer.sh`._
 
 Tak lupa kami menutup *File Descriptor* Standar 
 ```c
@@ -727,7 +917,7 @@ Pada soal c, setelah melakukan pengunduhan dan terisi 10 gambar dari link `https
 
 **Cara Pengerjaan**
 ---
-Yang kami lakukan pertama kali adalah melakukan pengecekan apakah pengunduhan telah terunduh sebanyak 10 buah gambar, jika sudah maka kami memproses pembuatan `file` dari `status.txt` yang berisikan pesan `Download Success`. Yang mana pesan `Download Success` di-enkripsi dengan metode `Caesar Cipher` yang direpresentasikan dengan perulangan `for loop`. Perulangan ini akan mengecek dari tiap-tiap index karakter array dan menggesernya atau `shift` sebanyak 5. Apabila perulangan telah dilakukan maka pembuatan `file status.txt` dilakukan dengan bantuan dari fungsi `fopen()`. Kemudian kami melakukan `fork()` kebali terhadap variable `cucuid` yang akan menjalankan proses peng-*compress* an dari direktori yang telah siap dengan bantuan fungsi `execv` dan *command* `zip -r`. Setelah semua itu maka kami melakukan proses selanjutnya untuk menghapus semuanya terkecuali terhadap `file` dengan ekstensi `.zip`.
+Yang kami lakukan pertama kali adalah melakukan pengecekan apakah pengunduhan telah terunduh sebanyak 10 buah gambar, jika sudah maka kami memproses pembuatan `file` dari `status.txt` yang berisikan pesan `Download Success`. Yang mana pesan `Download Success` di-enkripsi dengan metode `Caesar Cipher` yang direpresentasikan dengan perulangan `for loop`. Kalimat `Download Success` akan berubah menjadi `Itbsqtfi Xzhhjxx`. Perulangan ini akan mengecek dari tiap-tiap index karakter array dan menggesernya atau `shift` sebanyak 5. Apabila perulangan telah dilakukan maka pembuatan `file status.txt` dilakukan dengan bantuan dari fungsi `fopen()`. Kemudian kami melakukan `fork()` kebali terhadap variable `cucuid` yang akan menjalankan proses peng-*compress* an dari direktori yang telah siap dengan bantuan fungsi `execv` dan *command* `zip -r`. Setelah semua itu maka kami melakukan proses selanjutnya untuk menghapus semuanya terkecuali terhadap `file` dengan ekstensi `.zip`.
 ```c
             if (i == 9)
                 {
@@ -787,8 +977,7 @@ Yang kami lakukan pertama kali adalah melakukan pengecekan apakah pengunduhan te
                 execv("/usr/bin/zip", argv);
             }
 
-            while (wait(NULL) != cucuid)
-                ;
+            while (wait(NULL) != cucuid);
             char *argv[] = {"rm", "-r", now, NULL};
             execv("/bin/rm", argv);
         }
@@ -809,7 +998,7 @@ Pada soal d, kami diminta untuk membuat sebuah `program bash` dengan nama `kille
 **Cara Pengerjaan**
 ---
 Secara esensi sebenarnya kami telah melakukan proses ini di awal dari [Cara pengerjaan Soal 3](#Soal-3).
-Kita perlu membuat `file` dengan `program bash` yang bernama `killer.sh` yang bertujuan untuk menterminasi semua proses program yang sedang berjalan dan menghapus dirinya sendiri setelah program dijalankan. Dalam pembuatan program ini kami menggunakan bantuan dari fungsi `fopen()`.
+Kita perlu membuat `file` dengan `program bash` yang bernama `killer.sh` yang bertujuan untuk menterminasi semua proses program yang sedang berjalan dan menghapus dirinya sendiri setelah program dijalankan. Dalam pembuatan program ini kami menggunakan bantuan dari fungsi `fopen()`. Program akan berisikan perintah bash yang akan memanggil command `kill` atau `pkill` yang selanjutnya akan memanggil command `rm -r ` yang akan menghapus file tersebut.
 ```c
  FILE *pFile;
     pFile = fopen("killer.sh", "w");
@@ -817,21 +1006,33 @@ Kita perlu membuat `file` dengan `program bash` yang bernama `killer.sh` yang be
     if (strcmp(argv[1], "-x") == 0)
     {
         char inp[30] = {"pkill -9 -s "};
-        char gpid[30];
-        sprintf(gpid, " %d", getpid());
-        strcat(inp, gpid);
+        char inp2[30] = {"; rm -r killer.sh"};
+        char sid[30];
+        sprintf(sid, " %d", sid);
+        strcat(inp, sid);
+        strcat(inp, inp2);
         fprintf(pFile, inp);
     }
 
     if (strcmp(argv[1], "-z") == 0)
     {
         char inp[30] = {"kill -9 "};
+        char inp2[30] = {"; rm -r killer.sh"};
         char gpid[30];
         sprintf(gpid, " %d", getpid());
         strcat(inp, gpid);
+        strcat(inp, inp2);
         fprintf(pFile, inp);
     }
     fclose(pFile);
+
+pid = fork();
+    if (pid == 0) {
+      char *argv[] = {"chmod", "+x", "killer.sh" , NULL};
+      execv("/bin/chmod", argv);
+    }
+    while(wait(NULL) != pid);
+    
 ```
 _catatan : Jika inputan argument counter berupa -z, maka program `killer.sh` akan menghentikan semua operasi dari program utama. Akan tetapi jika inputan argument counter berupa -x, maka program `killer.sh` akan membuat program utama berhenti namun membiarkan proses di setiap direktori yang masih berjalan hignga selesai. Perbedaan mendasar antar argument counter tersebut terdapat pada command `pkill -9 -s` dan `kill -9` agar dapat menyesuaikan dengan yang dimau dari masing-masing mode dari program bash `killer.sh`._
 
@@ -848,20 +1049,25 @@ Mode akan ditangkap dari `argument counter` dari parameter fungsi/program utama 
     if (strcmp(argv[1], "-x") == 0)
     {
         char inp[30] = {"pkill -9 -s "};
-        char gpid[30];
-        sprintf(gpid, " %d", getpid());
-        strcat(inp, gpid);
+        char inp2[30] = {"; rm -r killer.sh"};
+        char sid[30];
+        sprintf(sid, " %d", sid);
+        strcat(inp, sid);
+        strcat(inp, inp2);
         fprintf(pFile, inp);
     }
 
     if (strcmp(argv[1], "-z") == 0)
     {
         char inp[30] = {"kill -9 "};
+        char inp2[30] = {"; rm -r killer.sh"};
         char gpid[30];
         sprintf(gpid, " %d", getpid());
         strcat(inp, gpid);
+        strcat(inp, inp2);
         fprintf(pFile, inp);
     }
+    fclose(pFile);
 
 ```
 _catatan : Perbedaan mendasar antar mode yaitu pada `-z` dan `-x` ialah pada perintah command nya. Jika pada mode `-z` maka command yang dieksekusi adalah `kill -9` dan jika pada mode `-x` maka command yang dieksekusi adalah `pkill -9 -s`._
@@ -871,7 +1077,7 @@ _catatan : Perbedaan mendasar antar mode yaitu pada `-z` dan `-x` ialah pada per
 
 **Kendala**
 ---
-
+Pada awalnya dari kelompok kami mengalami kebingungan karena tidak terbiasa menggunakan bahasa C terutamanya dalam write pada sebuah file.
 <br>
 
 **Screenshoot hasil jalannya dari program [soal3](./soal3/soal3.c)**
