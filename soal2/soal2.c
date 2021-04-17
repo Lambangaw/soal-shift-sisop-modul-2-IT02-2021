@@ -13,7 +13,7 @@ int main()
 {
 
     pid_t child_id;
-    if ((chdir("/home/lambang/modul2/petshop/")) < 0)
+    if ((chdir("/home/mikehotel/modul2/soal2/petshop/")) < 0)
     {
         exit(EXIT_FAILURE);
     }
@@ -61,7 +61,7 @@ int main()
     struct dirent *helperdir;
     char pet[1024];
     memset(pet, 0, sizeof pet);
-    petdir = opendir("/home/lambang/modul2/petshop/");
+    petdir = opendir("/home/mikehotel/modul2/soal2/petshop/");
 
     if (petdir != NULL)
     {
@@ -147,12 +147,12 @@ int main()
         }
     }
 
-    for (int j = 0; j < index; j++)
+    for (int j = index - 1; j >= 0; j--)
     {
         char loc[128], path[128], txtpath[128];
         FILE *pFile;
-        char abs[128] = "/home/lambang/modul2/petshop/";
-        sprintf(loc, "/home/lambang/modul2/petshop/%s", foldering[j]);
+        char abs[128] = "/home/mikehotel/modul2/soal2/petshop/";
+        sprintf(loc, "/home/mikehotel/modul2/soal2/petshop/%s", foldering[j]);
         DIR *dir = opendir(loc);
         if (dir)
         {
@@ -199,7 +199,7 @@ int main()
                         "umur: %s\n\n";
             fprintf(pFile, txt, owner[j], age[j]);
             fclose(pFile);
-            j = j + 1;
+            j = j - 1;
             child_id = fork();
             if (child_id == 0)
             {
