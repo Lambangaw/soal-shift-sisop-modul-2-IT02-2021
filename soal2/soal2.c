@@ -1,192 +1,234 @@
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <wait.h>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <unistd.h>
-#include <syslog.h>
 #include <string.h>
+#include <time.h>
+#include <wait.h>
+#include <dirent.h>
+#include <errno.h>
 
-int main(int argc, char *argv[])
+int main()
 {
 
-    pid_t pid, sid; // Variabel untuk menyimpan PID
-
-    pid = fork(); // Menyimpan PID dari Child Process
-
-    /* Keluar saat fork gagal
-  * (nilai variabel pid < 0) */
-    if (pid < 0)
+    pid_t child_id;
+    if ((chdir("/home/lambang/modul2/petshop/")) < 0)
     {
         exit(EXIT_FAILURE);
     }
 
-    /* Keluar saat fork berhasil
-  * (nilai variabel pid adalah PID dari child process) */
-    if (pid > 0)
+    child_id = fork();
+    if (child_id == 0)
     {
-        exit(EXIT_SUCCESS);
+        char *argv[] = {"wget", "--no-check-certificate", "https://drive.google.com/uc?id=1g5rehatLEkqvuuK_eooHJXB57EfdnxVD&export=download", "-O", "pets.zip", NULL};
+        execv("/bin/wget", argv);
     }
-
-    umask(0);
-
-    sid = setsid();
-    if (sid < 0)
-    {
-        exit(EXIT_FAILURE);
-    }
-
-    if ((chdir("/home/lambang/Downloads/sisop/soal3/")) < 0)
-    {
-        exit(EXIT_FAILURE);
-    }
-
-    FILE *pFile;
-    pFile = fopen("killer.sh", "w");
-
-    if (strcmp(argv[1], "-x") == 0)
-    {
-        char inp[30] = {"pkill -9 -s "};
-        char sid[30];
-        sprintf(sid, " %d", sid);
-        strcat(inp, sid);
-        fprintf(pFile, inp);
-    }
-
-    if (strcmp(argv[1], "-z") == 0)
-    {
-        char inp[30] = {"kill -9 "};
-        char gpid[30];
-        sprintf(gpid, " %d", getpid());
-        strcat(inp, gpid);
-        fprintf(pFile, inp);
-    }
-
-    fclose(pFile);
-
-    pid = fork();
-    if (pid == 0)
-    {
-        char *argv[] = {"chmod", "+x", "killer.sh", NULL};
-        execv("/bin/chmod", argv);
-    }
-    while (wait(NULL) != pid)
+    while (wait(NULL) != child_id)
         ;
 
-    close(STDIN_FILENO);
-    close(STDERR_FILENO);
-    close(STDOUT_FILENO);
-
-    while (1)
+    child_id = fork();
+    if (child_id == 0)
     {
-        time_t t = time(NULL);
-        struct tm *tm = localtime(&t);
-        char now[80];
-        strftime(now, 80, "%Y-%m-%d_%H:%M:%S", tm);
+        sleep(10);
+        char *argv[] = {"unzip", "pets.zip", NULL};
+        execv("/bin/unzip", argv);
+    }
+    while (wait(NULL) != child_id)
+        ;
 
-        pid_t child_id;
-        child_id = fork();
+    child_id = fork();
+    if (child_id == 0)
+    {
+        sleep(20);
+        char *argv[] = {"rm", "pets.zip", NULL};
+        execv("/bin/rm", argv);
+    }
+    while (wait(NULL) != child_id)
+        ;
 
-        if (child_id == 0)
+    DIR *petdir;
+    struct dirent *helperdir;
+    char pet[1024];
+    memset(pet, 0, sizeof pet);
+    petdir = opendir("/home/lambang/modul2/petshop/");
+
+    if (petdir != NULL)
+    {
+        while ((helperdir = readdir(petdir)))
         {
-            char *argv[] = {"mkdir", now, NULL};
-            execv("/bin/mkdir", argv);
-        }
-
-        child_id = fork();
-        if (child_id == 0)
-        {
-
-            for (int i = 0; i < 10; i++)
+            if (strcmp(helperdir->d_name, ".") == 0 || strcmp(helperdir->d_name, "..") == 0)
             {
-
-                child_id = fork();
-                if (child_id == 0)
-                {
-
-                    t = time(NULL);
-                    tm = localtime(&t);
-
-                    char new_now[80], location[160], link[80];
-                    strftime(new_now, 80, "%Y-%m-%d_%H:%M:%S", tm);
-                    sprintf(location, "%s/%s", now, new_now);
-                    sprintf(link, "https://picsum.photos/%ld", (((int)tm->tm_sec % 1000) + 50));
-                    char *argv[] = {"wget", "-O", location, link, "-o", "log", NULL};
-                    execv("/usr/bin/wget", argv);
-                }
-
-                sleep(5);
-
-                if (i == 9)
-                {
-
-                    char plain[100] = {"Download Success"};
-                    char temp_char;
-                    int index;
-                    int key = 5;
-
-                    for (index = 0; plain[index] != '\0'; ++index)
-                    {
-                        temp_char = plain[index];
-
-                        if (temp_char >= 'a' && temp_char <= 'z')
-                        {
-                            temp_char = temp_char + key;
-
-                            if (temp_char > 'z')
-                            {
-                                temp_char = temp_char - 'z' + 'a' - 1;
-                            }
-
-                            plain[index] = temp_char;
-                        }
-                        else if (temp_char >= 'A' && temp_char <= 'Z')
-                        {
-                            temp_char = temp_char + key;
-
-                            if (temp_char > 'Z')
-                            {
-                                temp_char = temp_char - 'Z' + 'A' - 1;
-                            }
-
-                            plain[index] = ch;
-                        }
-                    }
-
-                    FILE *pFile;
-                    char path[100];
-                    strcpy(path, now);
-                    strcat(path, "/success.txt");
-                    pFile = fopen(path, "a+");
-                    fprintf(pFile, plain);
-                    fclose(pFile);
-                }
+                continue;
             }
+            sprintf(pet + strlen(pet), "%s\n", helperdir->d_name);
+        }
+        (void)closedir(petdir);
+    }
+    else
+        perror("Couldn't open the directory");
 
-            while (wait(NULL) > 0)
-                ;
+    char *petname = strtok(pet, "\n");
+    char **name = malloc(60 * sizeof(char *));
+    char **nametmp = malloc(60 * sizeof(char *));
+
+    int index = 0;
+
+    while (petname != NULL)
+    {
+        struct stat location_stat;
+        char location[256];
+        sprintf(location, "/home/lambang/modul2/petshop/%s", petname);
+        stat(location, &location_stat);
+        if (S_ISDIR(location_stat.st_mode))
+        {
             child_id = fork();
             if (child_id == 0)
             {
-
-                char nama_file[80];
-                sprintf(nama_file, "%s.zip", now);
-                char *argv[] = {"zip", "-r", nama_file, now, NULL};
-                execv("/usr/bin/zip", argv);
+                char *argv[] = {"rm", "-r", petname, NULL};
+                execv("/bin/rm", argv);
             }
-
             while (wait(NULL) != child_id)
                 ;
-            char *argv[] = {"rm", "-r", now, NULL};
-            execv("/bin/rm", argv);
+        }
+        else
+        {
+            if (strstr(petname, "_") != NULL)
+            {
+                name[index] = petname;
+                nametmp[index] = petname;
+                index++;
+                name[index] = petname;
+                nametmp[index] = petname;
+                index++;
+            }
+            else
+            {
+                name[index] = petname;
+                nametmp[index] = petname;
+                index++;
+            }
+        }
+        petname = strtok(NULL, "\n");
+    }
+
+    char foldering[index][128], owner[index][128], age[index][128], temp[128];
+    int k;
+    k = 0;
+
+    for (int i = 0; i < index; i++)
+    {
+        if (strstr(name[i], "_") == NULL)
+        {
+            sprintf(temp, "%s", nametmp[i]);
+            char *petname2 = strtok(temp, ";");
+            while (petname2 != NULL)
+            {
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                ;
+                strncpy(age[i], petname2, strlen(petname2) - 4);
+
+                petname2 = NULL;
+            }
+        }
+        else
+        {
+            sprintf(temp, "%s", nametmp[i]);
+            char *petname2 = strtok(temp, ";");
+            while (petname2 != NULL)
+            {
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, "_");
+                sprintf(age[i], petname2);
+                i = i + 1;
+                petname2 = strtok(NULL, ";");
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                strncpy(age[i], petname2, strlen(petname2) - 4);
+                petname2 = NULL;
+            }
+        }
+    }
+
+    for (int j = 0; j < index; j++)
+    {
+        char loc[128], path[128], txtpath[128];
+        FILE *pFile;
+        char abs[128] = "/home/lambang/modul2/petshop/";
+        sprintf(loc, "/home/lambang/modul2/petshop/%s", foldering[j]);
+        DIR *dir = opendir(loc);
+        if (dir)
+        {
+            closedir(dir);
+        }
+        else if (ENOENT == errno)
+        {
+            child_id = fork();
+            if (child_id == 0)
+            {
+                char *argv[] = {"mkdir", loc, NULL};
+                execv("/bin/mkdir", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+        }
+        if (strstr(name[j], "_") == NULL)
+        {
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", loc, owner[j]);
+                char *argv[] = {"mv", name[j], path, NULL};
+                execv("/bin/mv", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+        }
+        else
+        {
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", loc, owner[j]);
+                char *argv[] = {"cp", name[j], path, NULL};
+                execv("/bin/cp", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+            sprintf(txtpath, "%s/keterangan.txt", foldering[j]);
+            pFile = fopen(txtpath, "a+");
+            char *txt = ""
+                        "nama: %s\n"
+                        "umur: %s\n\n";
+            fprintf(pFile, txt, owner[j], age[j]);
+            fclose(pFile);
+            j = j + 1;
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", loc, owner[j]);
+                char *argv[] = {"mv", name[j], path, NULL};
+                execv("/bin/mv", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
         }
 
-        sleep(40);
+        sprintf(txtpath, "%s/keterangan.txt", foldering[j]);
+        pFile = fopen(txtpath, "a+");
+        char *txt = ""
+                    "nama: %s\n"
+                    "umur: %s\n\n";
+        fprintf(pFile, txt, owner[j], age[j]);
+        fclose(pFile);
     }
+
+    return 0;
 }
