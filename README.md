@@ -823,16 +823,35 @@ else
 
 ## Soal 2.e.
 ## **Analisa Soal**
+Pada soal ini kita diminta untuk membuat sebuah file txt yang didalamnya memuat keterangan nama dan umur dari setiap hewan peliharaan yang terdapat dalam folder tersebut. Perlu diperhatikan juga bahwasanya format penulisan dalam file txt sudah ditentukan. File txt ini akan dibuat bebarengan ketika kita memasukan satu gambar ke dalam sebuah folder, dan akan terus di-_append_ jika kita memasukan gambar baru ke dalam folder tersebut.
 
+```
+...
+nama: anton
+umur: 6
+
+nama: ava
+umur: 7
+...
+```
 **Cara Pengerjaan**
 ---
-
+Dalam code kita perlu menyiapkan dimana lokasi file txt akan dibuat disini kami memastikan file `keterangan.txt` berada pada folder sesuai dengan jenis hewan yang sudah disimpan dalam variabel `foldering[j]`. Dengan bantuan fungsi `fopen()` dengan argumen `txtpath` yang merupakan lokasi file txt dan argumen `"a+"` supaya kita bisa me-_append_ , membaca, dan me-_write_ dalam file txt, dan juga apabila file tersebut belum tersedia dalam path maka akan dibuat filenya.
+```c
+sprintf(txtpath, "%s/keterangan.txt", foldering[j]);
+        pFile = fopen(txtpath, "a+");
+        char *txt = ""
+                    "nama: %s\n"
+                    "umur: %s\n\n";
+        fprintf(pFile, txt, owner[j], age[j]);
+        fclose(pFile);
+```
 <br>
 
 
 **Kendala**
 ---
-
+Kendala yang kami dapati adalah string handling dengan menggunakan bahasa c dimana kami tidak biasa menggunakan bahasa c dalam string handling. Selain itu apabila file yang dibaca folder terlebih dahulu adalah file dengan `_` maka perlu dibalik dalam for loop pembuatan directorynya.
 <br>
 
 **Screenshoot**
