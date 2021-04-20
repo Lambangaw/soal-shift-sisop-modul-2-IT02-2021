@@ -690,12 +690,12 @@ for (int j = 0; j < index; j++)
 
 ## Soal 2.c.
 ## **Analisa Soal**
-Pada soal ini kita diminta untuk membuat file jpg pada tiap folder yang sudah dibuat pada poin sebelumnya. Nama file jpg merupakan nama dari hewan peliharaan yang sudah disimpan pada variabel `owner[]` pada poin sbb
+Pada soal ini kita diminta untuk membuat file jpg pada tiap folder yang sudah dibuat pada poin sebelumnya. Nama file jpg merupakan nama dari hewan peliharaan yang sudah disimpan pada variabel `owner[]` pada poin sebelumnya. 
 **Cara Pengerjaan**
 ---
-
+Kita akan memindahkan semua file sesuai dengan nama hewan yang sudah disimpan pada variabel `owner[]`, maka perlu dilakukan for loop sebanyak jumlah index yang terdapat dalam directory. Untuk path/lokasi kita memindahkan gambar sudah tersimpan pada variabel `loc[]` (untuk file tanpa `_`) yang tiap foldernya sudah dibuatkan pada soal sebelumnya. Kemudian akan dilakukan pengecekan apakah nama file mengandung `_` atau tidak. Jika iya maka file tersebut di-_copy_ terlebih dahulu ke lokasi, kemudian masih dalam bracket if yang sama, index di-_decrement_ lalu kita memindahkan file dan me-_rename_-nya. Jika tidak terdapat `_` maka akan langsung dipindahkan ke lokasi tujuan dan me rename nya.
 ```c
-for (int j = 0; j < index; j++)
+for (int j = index-1; j >= 0; j--)
     {
         char loc[128], path[128], txtpath[128];
         
@@ -731,7 +731,7 @@ for (int j = 0; j < index; j++)
                         "umur: %s\n\n";
             fprintf(pFile, txt, owner[j], age[j]);
             fclose(pFile);
-            j = j + 1;
+            j--;
             child_id = fork();
             if (child_id == 0)
             {
@@ -753,17 +753,72 @@ for (int j = 0; j < index; j++)
     }
 
 ```
+_catatan = fungsi `sptintf` digunakan untuk melakukan concating string untuk mengatur path file, untuk file dengan `_` lokasi tujuanya adalah variabel `foldering[]`._
 
 
 <br>
 
 ## Soal 2.d.
 ## **Analisa Soal**
-
+Soal ini mengarahkan bahwa setiap file bisa saja harus disalin menjadi 2 file jpg dikarenakan terdapat file yang dipisahkan dengan `_` misalnya contoh `cat;anto;6_dog;supri;7.jpg` maka kita harus menyimpan file tersebut pada 2 folder yaitu folder cat dan dog. Sebenarnya pengerjaan soal 2.d ini sudah disampaikan pada poin poin sebelumnya dimana setiap prosesnya kita membedakan file dengan dan tanpa `_`.
 **Cara Pengerjaan**
 ---
-
-
+Potongan code dibawah ini, menyimpan potongan potongan nama folder, nama hewan, dan umur hewan yang dalam sebuah nama file terkandung `_`. perlu diperhatikan proses penyimpanan dalam variabel array `foldering[]`, `owner[]`, dan `age[]` perlu dilakukan dua kali dalam satu bracket.
+``c
+else
+        {
+            sprintf(temp, "%s", nametmp[i]);
+            char *petname2 = strtok(temp, ";");
+            while (petname2 != NULL)
+            {
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, "_");
+                sprintf(age[i], petname2);
+                i = i + 1;
+                petname2 = strtok(NULL, ";");
+                sprintf(foldering[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                sprintf(owner[i], "%s", petname2);
+                petname2 = strtok(NULL, ";");
+                strncpy(age[i], petname2, strlen(petname2) - 4);
+                petname2 = NULL;
+            }
+        }
+```
+Proses pada code dibawah ini menggambarkan proses pemindahan dan rename nama file ke setiap folder, dikarenakan sebuah file yang terdapat `_` pada nama filenya diperlukan pemindahan sebanyak dua kali. Hal ini mengakibatkan tidak bisa langsung menggunakan command `mv` namun untuk satu blok hewan sebelum `_` di-_copy_ terlebih dahulu dan diganti namanya, selanjutnya untuk blok hewan setelah `_` akan dipindahkan namun pada path sesuai variabel `foldering[]` dikarenakan bisa saja jenis hewanya berbeda dan folder tujuanya juga berbeda.
+```c
+else
+        {
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", loc, owner[j]);
+                char *argv[] = {"cp", name[j], path, NULL};
+                execv("/bin/cp", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+            sprintf(txtpath, "%s/keterangan.txt", foldering[j]);
+            pFile = fopen(txtpath, "a+");
+            char *txt = ""
+                        "nama: %s\n"
+                        "umur: %s\n\n";
+            fprintf(pFile, txt, owner[j], age[j]);
+            fclose(pFile);
+            j = j + 1;
+            child_id = fork();
+            if (child_id == 0)
+            {
+                sprintf(path, "%s/%s.jpg", foldering[j], owner[j]);
+                char *argv[] = {"mv", name[j], path, NULL};
+                execv("/bin/mv", argv);
+            }
+            while (wait(NULL) != child_id)
+                ;
+        }
+```
 <br>
 
 ## Soal 2.e.
