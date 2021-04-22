@@ -856,9 +856,26 @@ Kendala yang kami dapati adalah string handling dengan menggunakan bahasa c dima
 
 **Screenshoot**
 
+**Screenshoot waktu menjalankan dari program [soal2](./soal2/soal2.c)**
+![run](./img/soal2/run.jpg)
+
+**Screenshoot waktu menjalankan unzip dari program [soal2](./soal2/soal2.c)**
+![unzip](./img/soal2/unzip.jpg)
+
+**Screenshoot waktu pembuatan folder dari program [soal2](./soal2/soal2.c)**
+![folder](./img/soal2/foldering.jpg)
+
+**Screenshoot folder cat dari program [soal2](./soal2/soal2.c)**
+![cat](./img/soal2/cat_folder.jpg)
+
+**Screenshoot file keterangan.txt dari program [soal2](./soal2/soal2.c)**
+![keterangan](./img/soal2/keterangan.jpg)
+
+**Screenshoot waktu menjalankan command `tree` pada folder petshop [soal2](./soal2/soal2.c)**
+![tree](./img/soal2/tree_command.jpg)
 
 
-
+--- 
 <br>
 <br>
 
