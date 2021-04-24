@@ -117,11 +117,20 @@ int main()
     while (wait(NULL) != ortuid)
         ;
 
-    while (t != 1617981719)
+    ortuid = fork();
+    if (ortuid == 0)
     {
-
-        t = time(NULL);
+        sleep(20);
+        char *argv[] = {"find", "/home/lambang/Downloads/demo/soal-shift-sisop-modul-2-IT02-2021-main/soal1/soal1/FOTO", "-type", "f", "!", "-iname", "\*.jpg", "-delete", NULL};
+        execv("/usr/bin/find", argv);
     }
+    while (wait(NULL) != ortuid)
+
+        while (t != 1617981719)
+        {
+
+            t = time(NULL);
+        }
 
     while (1)
     {
